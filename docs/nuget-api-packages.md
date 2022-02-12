@@ -16,12 +16,12 @@ Pruning down the results I can see the following data should be useful and match
 			"id": "log4net",
 			"version": "2.0.14",
 			"description": "log4net is a tool to help the programmer output log statements to a variety ....",
-            "totalDownloads": 107054643
+			"totalDownloads": 107054643
         },{
 			"id": "Microsoft.ApplicationInsights.Log4NetAppender",
 			"version": "2.20.0",
 			"description": "Application Insights Log4Net Appender is a customer appender allowing you to send Log4Net log messages to Application ...",
-            "totalDownloads": 7938163,
+			"totalDownloads": 7938163,
         }
     ]
 }

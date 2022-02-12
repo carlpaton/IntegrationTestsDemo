@@ -39,7 +39,7 @@ https://ossindex.sonatype.org/api/v3/component-report/pkg:nuget/log4net@1.2.10
 
 The version `2.0.14` has no vulnerabilities at the time of this post.
 
-```
+```json
 {
     "coordinates": "pkg:nuget/log4net@2.0.14",
     "description": "log4net is a tool to help the programmer output log statements to a variety of output targets. log4net is a port of the excellent log4j framework to the .NET runtime",
@@ -52,7 +52,7 @@ The version `2.0.14` has no vulnerabilities at the time of this post.
 
 The version `1.2.10` has 1 known vulnerability at the time of this post.
 
-```
+```json
 {
     "coordinates": "pkg:nuget/log4net@1.2.10",
     "description": "log4net is a tool to help the programmer output log statements to a variety of output targets. log4net is a port of the excellent log4j framework to the .NET runtime",
