@@ -85,6 +85,45 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Artists Update",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "Id",
+							"value": "f22e850e-4b31-417d-bc4b-4813ba98a50c",
+							"type": "text"
+						},
+						{
+							"key": "Name",
+							"value": "Carlos Poephole",
+							"type": "text"
+						}
+					],
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/artists",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"artists"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
