@@ -1,4 +1,5 @@
 using Foo.Api.Application.Infrastructure.Common;
+using Foo.Api.Application.Infrastructure.Services.Nuget;
 using Foo.Api.Domain.Interfaces;
 using Foo.Api.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Builder;
@@ -22,10 +23,13 @@ namespace Foo.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<MySqlOptions>(Configuration.GetSection(MySqlOptions.MySql));
+            services.Configure<NugetServiceOptions>(Configuration.GetSection(NugetServiceOptions.NugetService));
 
             services.AddScoped<IPackageRepository, PackageRepository>();
             services.AddScoped<IPackageVersionRepository, PackageVersionRepository>();
             services.AddScoped<IVulnerabilityRepository, VulnerabilityRepository>();
+
+            services.AddHttpClient<INugetServiceClient, NugetServiceClient>();
 
             services.AddControllers();
         }

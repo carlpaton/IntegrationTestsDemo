@@ -1,4 +1,5 @@
-﻿using Foo.Api.Application.Models;
+﻿using Foo.Api.Application.Infrastructure.Services.Nuget;
+using Foo.Api.Application.Models;
 using Foo.Api.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,13 +15,15 @@ namespace Foo.Api.Controllers
         private readonly IPackageRepository _packageRepository;
         private readonly IPackageVersionRepository _packageVersionRepository;
         private readonly IVulnerabilityRepository _vulnerabilityRepository;
+        private readonly INugetServiceClient _nugetServiceClient;
 
         public PackagesController(IPackageRepository packageRepository, IPackageVersionRepository packageVersionRepository,
-            IVulnerabilityRepository vulnerabilityRepository)
+            IVulnerabilityRepository vulnerabilityRepository, INugetServiceClient nugetServiceClient)
         {
             _packageRepository = packageRepository;
             _packageVersionRepository = packageVersionRepository;
             _vulnerabilityRepository = vulnerabilityRepository;
+            _nugetServiceClient = nugetServiceClient;
         }
 
         [HttpGet]
@@ -56,17 +59,28 @@ namespace Foo.Api.Controllers
         [HttpPost]
         public async Task<ActionResult<PackageResponse>> Add([FromBody] PackageRequest packageRequest)
         {
-            var newPackage = new Domain.Models.Package(
-                packageRequest.Id, 
+            var nugetPackage = await _nugetServiceClient.QueryPackageAsync(
                 packageRequest.Name,
-                "description",
-                0,
+                packageRequest.Version);
+
+            if (!nugetPackage.Exists()) 
+            {
+                return Problem($"Package {packageRequest.Name}@{packageRequest.Version} was not found on Nuget API.");
+            }
+
+            var newPackage = new Domain.Models.Package(
+                packageRequest.Id,
+                nugetPackage.Name,
+                nugetPackage.Description,
+                nugetPackage.Downloads,
                 DateTime.Now);
 
             var newPackageVersion = new Domain.Models.PackageVersion(
                 Guid.NewGuid(),
                 newPackage.Id,
                 packageRequest.Version);
+
+            // TODO call out to OSS api for vulnerability details
 
             var newVulnerability = new Domain.Models.Vulnerability(
                 Guid.NewGuid(),

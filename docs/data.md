@@ -20,7 +20,7 @@ CREATE SCHEMA foo_api;
 CREATE TABLE foo_api.package (
   `id` BINARY(16) PRIMARY KEY,
   `name` VARCHAR(150) NULL,
-  `description` VARCHAR(150) NULL,
+  `description` VARCHAR(500) NULL,
   `total_downloads` INT NULL,
   `created` DATETIME NULL DEFAULT CURRENT_TIMESTAMP
 );
