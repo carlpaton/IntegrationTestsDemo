@@ -1,9 +1,11 @@
 ﻿using Foo.Api.Application.Infrastructure.Services.Nuget;
+using Foo.Api.Application.Infrastructure.Services.OssIndex;
 using Foo.Api.Application.Models;
 using Foo.Api.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Foo.Api.Controllers
@@ -16,14 +18,17 @@ namespace Foo.Api.Controllers
         private readonly IPackageVersionRepository _packageVersionRepository;
         private readonly IVulnerabilityRepository _vulnerabilityRepository;
         private readonly INugetServiceClient _nugetServiceClient;
+        private readonly IOssIndexClient _ossIndexClient;
 
         public PackagesController(IPackageRepository packageRepository, IPackageVersionRepository packageVersionRepository,
-            IVulnerabilityRepository vulnerabilityRepository, INugetServiceClient nugetServiceClient)
+            IVulnerabilityRepository vulnerabilityRepository, INugetServiceClient nugetServiceClient, 
+            IOssIndexClient ossIndexClient)
         {
             _packageRepository = packageRepository;
             _packageVersionRepository = packageVersionRepository;
             _vulnerabilityRepository = vulnerabilityRepository;
             _nugetServiceClient = nugetServiceClient;
+            _ossIndexClient = ossIndexClient;
         }
 
         [HttpGet]
@@ -68,6 +73,12 @@ namespace Foo.Api.Controllers
                 return Problem($"Package {packageRequest.Name}@{packageRequest.Version} was not found on Nuget API.");
             }
 
+            // TODO coordinates could be an extension method or helper
+            var coordinates = $"pkg:nuget/{packageRequest.Name}@{packageRequest.Version}";
+            var ossIndexResponseList = await _ossIndexClient.GetComponentReport(coordinates);
+
+            // TODO oss index problem response for anything thats not 200
+
             var newPackage = new Domain.Models.Package(
                 packageRequest.Id,
                 nugetPackage.Name,
@@ -80,21 +91,25 @@ namespace Foo.Api.Controllers
                 newPackage.Id,
                 packageRequest.Version);
 
-            // TODO call out to OSS api for vulnerability details
-
-            var newVulnerability = new Domain.Models.Vulnerability(
-                Guid.NewGuid(),
-                newPackageVersion.Id,
-                "title",
-                "description",
-                "cvss score",
-                "reference");
-
             await _packageRepository.AddAsync(newPackage);
 
             await _packageVersionRepository.AddAsync(newPackageVersion);
 
-            await _vulnerabilityRepository.AddAsync(newVulnerability);
+            // TODO this is just the first, there could be more
+            var ossIndexResponse = ossIndexResponseList.FirstOrDefault();
+
+            if (ossIndexResponse != null) 
+            {
+                var newVulnerability = new Domain.Models.Vulnerability(
+                    Guid.NewGuid(),
+                    newPackageVersion.Id,
+                    ossIndexResponse.Title,
+                    ossIndexResponse.Description,
+                    ossIndexResponse.CvssScore,
+                    ossIndexResponse.Reference);
+
+                await _vulnerabilityRepository.AddAsync(newVulnerability);
+            }
 
             var packageResponse = new PackageResponse() 
             { 
@@ -111,6 +126,15 @@ namespace Foo.Api.Controllers
                     }
                 }
             };
+
+            // TODO this is trash, probbaly best to built a GET packages/{id} endpoint and return its value here
+            if (ossIndexResponse != null)
+            {
+                packageResponse.Vulnerability.First().Title = ossIndexResponse.Title;
+                packageResponse.Vulnerability.First().Description = ossIndexResponse.Description;
+                packageResponse.Vulnerability.First().CvssScore = ossIndexResponse.CvssScore;
+                packageResponse.Vulnerability.First().Reference = ossIndexResponse.Reference;
+            }
 
             return Ok(packageResponse);
         }

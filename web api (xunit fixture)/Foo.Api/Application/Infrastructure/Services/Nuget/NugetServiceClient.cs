@@ -15,25 +15,16 @@ namespace Foo.Api.Application.Infrastructure.Services.Nuget
     {
         private readonly HttpClient _client;
         private readonly ILogger<NugetServiceClient> _logger;
-        private readonly JsonSerializerOptions _jsonSerializerOptions;
         private readonly NugetServiceOptions _options;
 
-        public NugetServiceClient(
-            HttpClient client,
-            ILogger<NugetServiceClient> logger,
+        public NugetServiceClient(HttpClient client, ILogger<NugetServiceClient> logger,
             IOptions<NugetServiceOptions> options)
         {
             _options = options.Value;
             _logger = logger;
 
             client.BaseAddress = new Uri(_options.Url);
-
             _client = client;
-
-            _jsonSerializerOptions = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
         }
 
         public async Task<NugetServiceQueryResponse> QueryPackageAsync(string packageName, string version)
@@ -50,7 +41,7 @@ namespace Foo.Api.Application.Infrastructure.Services.Nuget
             var response = await _client.GetAsync(requestUri);
             var content = await response.Content.ReadAsStringAsync();
 
-            var nugetPackage = JsonSerializer.Deserialize<NugetPackageDto>(content, _jsonSerializerOptions);
+            var nugetPackage = JsonSerializer.Deserialize<NugetPackageDto>(content, SerializationOptions.Deserialize);
 
             // nothing found, example search on `lkjnsdkyfgislkdmflsdjfsklfn`
             var data = nugetPackage.Data.FirstOrDefault();
