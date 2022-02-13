@@ -4,11 +4,13 @@ Example integration tests for a Web API.
 
 ## Foo Api Endpoints
 
-* http://localhost:5000/artists
+### Packages
+
+* http://localhost:5000/packages
 
 ```
-GET     - returns all artists
-POST    - adds a new artist
-DELETE  - deletes an artist
-PUT     - update an artist
+GET     - Get list of packages
+POST    - Create new package (version supplied)
+DELETE  - Delete package by id
+PUT     - Update package
 ```

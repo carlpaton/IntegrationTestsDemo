@@ -23,7 +23,6 @@ namespace Foo.Api
         {
             services.Configure<MySqlOptions>(Configuration.GetSection(MySqlOptions.MySql));
 
-            services.AddScoped<IArtistRepository, ArtistRepository>();
             services.AddScoped<IPackageRepository, PackageRepository>();
             services.AddScoped<IPackageVersionRepository, PackageVersionRepository>();
 
