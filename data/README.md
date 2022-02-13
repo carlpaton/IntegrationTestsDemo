@@ -22,13 +22,17 @@ CREATE TABLE foo_api.package (
   `name` VARCHAR(150) NULL,
   `description` VARCHAR(150) NULL,
   `total_downloads` INT NULL,
-  `created` DATETIME NULL DEFAULT CURRENT_TIMESTAMP);
+  `created` DATETIME NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE foo_api.package_version (
   `id` BINARY(16) PRIMARY KEY,
   `id_package` BINARY(16) NOT NULL,
   `version` VARCHAR(50) NULL,
-  FOREIGN KEY (id_package) REFERENCES package(id));
+  FOREIGN KEY (id_package) 
+    REFERENCES package(id)
+    ON DELETE CASCADE
+);
 
 CREATE TABLE foo_api.vulnerabilities (
   `id` BINARY(16) PRIMARY KEY,
@@ -37,7 +41,10 @@ CREATE TABLE foo_api.vulnerabilities (
   `description` VARCHAR(500) NULL,
   `cvss_score` VARCHAR(50) NULL,
   `reference` VARCHAR(250) NULL,
-  FOREIGN KEY (id_package_version) REFERENCES package_version(id));
+  FOREIGN KEY (id_package_version) 
+    REFERENCES package_version(id)
+    ON DELETE CASCADE
+);
 
 SET @id_package = UUID();
 SET @id_package_version = UUID();

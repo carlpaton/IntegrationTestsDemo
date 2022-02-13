@@ -25,6 +25,7 @@ namespace Foo.Api
 
             services.AddScoped<IArtistRepository, ArtistRepository>();
             services.AddScoped<IPackageRepository, PackageRepository>();
+            services.AddScoped<IPackageVersionRepository, PackageVersionRepository>();
 
             services.AddControllers();
         }

@@ -7,6 +7,11 @@ namespace Foo.Api.Domain.Interfaces
 {
     public interface IPackageRepository
     {
+        /// <summary>
+        /// Get package by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         Task<Package> GetAsync(Guid id);
 
         /// <summary>
