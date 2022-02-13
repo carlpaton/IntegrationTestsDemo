@@ -21,7 +21,7 @@ Pruning down the results I can see the following data should be useful and match
 			"id": "Microsoft.ApplicationInsights.Log4NetAppender",
 			"version": "2.20.0",
 			"description": "Application Insights Log4Net Appender is a customer appender allowing you to send Log4Net log messages to Application ...",
-			"totalDownloads": 7938163,
+			"totalDownloads": 7938163
         }
     ]
 }
