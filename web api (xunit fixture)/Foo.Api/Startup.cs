@@ -25,6 +25,7 @@ namespace Foo.Api
 
             services.AddScoped<IPackageRepository, PackageRepository>();
             services.AddScoped<IPackageVersionRepository, PackageVersionRepository>();
+            services.AddScoped<IVulnerabilityRepository, VulnerabilityRepository>();
 
             services.AddControllers();
         }

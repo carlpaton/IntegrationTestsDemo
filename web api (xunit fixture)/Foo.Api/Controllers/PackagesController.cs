@@ -13,11 +13,14 @@ namespace Foo.Api.Controllers
     {
         private readonly IPackageRepository _packageRepository;
         private readonly IPackageVersionRepository _packageVersionRepository;
+        private readonly IVulnerabilityRepository _vulnerabilityRepository;
 
-        public PackagesController(IPackageRepository packageRepository, IPackageVersionRepository packageVersionRepository)
+        public PackagesController(IPackageRepository packageRepository, IPackageVersionRepository packageVersionRepository,
+            IVulnerabilityRepository vulnerabilityRepository)
         {
             _packageRepository = packageRepository;
             _packageVersionRepository = packageVersionRepository;
+            _vulnerabilityRepository = vulnerabilityRepository;
         }
 
         [HttpGet]
@@ -37,7 +40,13 @@ namespace Foo.Api.Controllers
                     Id = package.Id,
                     Name = package.Name,
                     TotalDownloads = package.TotalDownloads,
-                    Version = packageVersion.Version
+                    Vulnerability = new List<PackageVulnerability>() 
+                    { 
+                        new PackageVulnerability()
+                        {                        
+                            Version = packageVersion.Version
+                        }
+                    }
                 });
             }
 
@@ -45,23 +54,33 @@ namespace Foo.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<PackageResponse>> Add([FromBody] Package package)
+        public async Task<ActionResult<PackageResponse>> Add([FromBody] PackageRequest packageRequest)
         {
             var newPackage = new Domain.Models.Package(
-                package.Id, 
-                package.Name,
+                packageRequest.Id, 
+                packageRequest.Name,
                 "description",
                 0,
                 DateTime.Now);
 
-            await _packageRepository.AddAsync(newPackage);
-
             var newPackageVersion = new Domain.Models.PackageVersion(
                 Guid.NewGuid(),
                 newPackage.Id,
-                package.Version);
+                packageRequest.Version);
+
+            var newVulnerability = new Domain.Models.Vulnerability(
+                Guid.NewGuid(),
+                newPackageVersion.Id,
+                "title",
+                "description",
+                "cvss score",
+                "reference");
+
+            await _packageRepository.AddAsync(newPackage);
 
             await _packageVersionRepository.AddAsync(newPackageVersion);
+
+            await _vulnerabilityRepository.AddAsync(newVulnerability);
 
             var packageResponse = new PackageResponse() 
             { 
@@ -70,7 +89,13 @@ namespace Foo.Api.Controllers
                 Id = newPackage.Id,
                 Name = newPackage.Name,
                 TotalDownloads = newPackage.TotalDownloads,
-                Version = newPackageVersion.Version
+                Vulnerability = new List<PackageVulnerability>()
+                {
+                    new PackageVulnerability()
+                    {
+                        Version = newPackageVersion.Version
+                    }
+                }
             };
 
             return Ok(packageResponse);
@@ -85,14 +110,14 @@ namespace Foo.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult<PackageResponse>> Update([FromBody] Package package)
+        public async Task<ActionResult<PackageResponse>> Update([FromBody] PackageRequest packageRequest)
         {
-            var existingPackage = await _packageRepository.GetAsync(package.Id);
+            var existingPackage = await _packageRepository.GetAsync(packageRequest.Id);
             var existingPackageVersion = await _packageVersionRepository.GetAsync(existingPackage.Id);
 
             var updatedPackage = new Domain.Models.Package(
                 existingPackage.Id, 
-                package.Name,
+                packageRequest.Name,
                 "updated description",
                 0,
                 DateTime.Now);
@@ -100,7 +125,7 @@ namespace Foo.Api.Controllers
             var updatedPackageVersion = new Domain.Models.PackageVersion(
                 existingPackageVersion.Id,
                 existingPackageVersion.IdPackage,
-                package.Version);
+                packageRequest.Version);
 
             await _packageRepository.UpdateAsync(updatedPackage);
             await _packageVersionRepository.UpdateAsync(updatedPackageVersion);
@@ -112,7 +137,13 @@ namespace Foo.Api.Controllers
                 Id = updatedPackage.Id,
                 Name = updatedPackage.Name,
                 TotalDownloads = updatedPackage.TotalDownloads,
-                Version = updatedPackageVersion.Version
+                Vulnerability = new List<PackageVulnerability>()
+                {
+                    new PackageVulnerability()
+                    {
+                        Version = updatedPackageVersion.Version
+                    }
+                }
             };
 
             return Ok(packageResponse);

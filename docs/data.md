@@ -34,7 +34,7 @@ CREATE TABLE foo_api.package_version (
     ON DELETE CASCADE
 );
 
-CREATE TABLE foo_api.vulnerabilities (
+CREATE TABLE foo_api.vulnerability (
   `id` BINARY(16) PRIMARY KEY,
   `id_package_version` BINARY(16) NOT NULL,
   `title` VARCHAR(100) NULL,
@@ -45,23 +45,9 @@ CREATE TABLE foo_api.vulnerabilities (
     REFERENCES package_version(id)
     ON DELETE CASCADE
 );
-
-SET @id_package = UUID();
-SET @id_package_version = UUID();
-
-INSERT INTO foo_api.package
-VALUES(UUID_TO_BIN(@id_package),'log4net','log4net is a tool to help the programmer ....', 107054643, NOW());
-
-INSERT INTO foo_api.package_version
-VALUES(UUID_TO_BIN(@id_package_version), UUID_TO_BIN(@id_package),'1.2.10');
-
-INSERT INTO foo_api.vulnerabilities
-VALUES(UUID_TO_BIN(UUID()), UUID_TO_BIN(@id_package_version),'[CVE-2018-1285] Apache log4net before 2.0.8 does not disable XML external entities when parsing ...', 'Apache log4net before 2.0.8 does not disable XML external entities when parsing log4net configuration files ... ', '9.8', 'https://ossindex.sonatype.org/vulnerability/c4ac70fa-d3ce-4153-b4e9-e1a9d193be8c?component-type=nuget&component-name=log4net&utm_source=postmanruntime&utm_medium=integration&utm_content=7.28.4');
-
-SELECT BIN_TO_UUID(id) id, name, description, total_downloads, created FROM foo_api.package;
-SELECT BIN_TO_UUID(id), BIN_TO_UUID(id_package), version FROM foo_api.package_version;
-SELECT BIN_TO_UUID(id), BIN_TO_UUID(id_package_version), title, description, cvss_score, reference FROM foo_api.vulnerabilities; 
 ```
+
+## References
 
 MySQL UUID support:
 
